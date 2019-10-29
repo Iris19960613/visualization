@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         "/api": {
-            target: "https://www.daoyuanketang.com",  //需要访问的地址,以豆瓣为例
+            target: "",  //需要访问的地址,以豆瓣为例
             changeOrigin: true,
             pathRewrite: {
               '^/api':''
