@@ -33,56 +33,60 @@
                 :style="{ 'height': windowHeight + 'px' }"
                 class="detail-fp"
             >
-                <div
-                    v-for="(fpItem, fpIndex) in fp"
-                    :key="fpIndex"
-                    class="item">
-                    <video
-                        v-if="isVideo"
-                        :src="fpItem.imageUrl"
-                        mediatype="video"
-                        class="item-video"
-                    >
-                    </video>
-                    <img
-                        v-else
-                        :src="fpItem.imageUrl"
-                        class="item-image"
-                    />
-                    <div class="item-text">{{ fpItem.caption }}</div>
-                </div>
-                <div class="detail-fp-bottom">
+                <div class="detail-fp-button">
                     <button @click="changeCurrent('fpCurrent','del')">上一页</button>
-                    <div class="detail-fp-bottom-text">第{{ fpCurrent }}页</div>
+                    <div class="detail-fp-button-text">第{{ fpCurrent }}页</div>
                     <button @click="changeCurrent('fpCurrent','add')">下一页</button>
+                </div>
+                <div class="detail-fp-content">
+                    <div
+                        v-for="(fpItem, fpIndex) in fp"
+                        :key="fpIndex"
+                        class="item">
+                        <video
+                            v-if="isVideo"
+                            :src="fpItem.imageUrl"
+                            mediatype="video"
+                            class="item-video"
+                        >
+                        </video>
+                        <img
+                            v-else
+                            :src="fpItem.imageUrl"
+                            class="item-image"
+                        />
+                        <div class="item-text">{{ fpItem.caption }}</div>
+                    </div>
                 </div>
             </div>
             <div
                 :style="{ 'height': windowHeight + 'px'}"
                 class="detail-fp"
             >
-                <div
-                    v-for="(fnItem, fnIndex) in fn"
-                    :key="fnIndex"
-                    class="item">
-                    <video
-                        v-if="isVideo"
-                        :src="fnItem.imageUrl"
-                        mediatype="video"
-                        class="item-video"
-                    >
-                    </video>
-                    <img
-                        v-else
-                        :src="fnItem.imageUrl"
-                        class="item-image"
-                    />
-                    <div class="item-text">{{ fnItem.caption }}</div>
-                </div>
-                <div class="detail-fp-bottom">
+                <div class="detail-fp-button">
                     <button @click="changeCurrent('fnCurrent','del')">上一页</button>
-                    <div class="detail-fp-bottom-text">第{{ fnCurrent }}页</div>
+                    <div class="detail-fp-button-text">第{{ fnCurrent }}页</div>
                     <button @click="changeCurrent('fnCurrent','add')">下一页</button>
+                </div>
+                <div class="detail-fp-content">
+                    <div
+                        v-for="(fnItem, fnIndex) in fn"
+                        :key="fnIndex"
+                        class="item">
+                        <video
+                            v-if="isVideo"
+                            :src="fnItem.imageUrl"
+                            mediatype="video"
+                            class="item-video"
+                        >
+                        </video>
+                        <img
+                            v-else
+                            :src="fnItem.imageUrl"
+                            class="item-image"
+                        />
+                        <div class="item-text">{{ fnItem.caption }}</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,16 +133,26 @@ export default {
                     this.fp = res.data.fp.slice(this.fpCurrent * 9 - 9, this.fpCurrent * 9);
                 }
                 else {
-                    alert('已经是最后一页啦~');
-                    this.fpCurrent--;
+                    if (res.data.fp.length === 0) {
+                        this.fp = res.data.fp;
+                    }
+                    else {
+                        alert('已经是最后一页啦~');
+                        this.fpCurrent--;
+                    }
                 }
 
                 if (this.fnCurrent * 9 < res.data.fn.length + 9) {
                     this.fn = res.data.fn.slice(this.fnCurrent * 9 - 9, this.fnCurrent * 9);
                 }
                 else {
-                    alert('已经是最后一页啦~');
-                    this.fnCurrent--;
+                    if (res.data.fn.length === 0) {
+                        this.fn = res.data.fn;
+                    }
+                    else {
+                        alert('已经是最后一页啦~');
+                        this.fnCurrent--;
+                    }
                 }
             }).catch(err => {
                 console.log('err', err);
@@ -187,20 +201,20 @@ export default {
     .detail {
         display: flex;
         &-fp {
-            display: flex;
-            flex-wrap: wrap;
-            // justify-content: space-around;
             width: 50%;
             border: solid 1px;
             overflow-y: auto;
             overflow-x: hidden;
-            &-bottom {
+            &-button {
                 display: flex;
-                margin: 10px;
-                align-items: center;
+                margin: 10px 200px;
                 &-text {
                     margin: 0 10px;
                 }
+            }
+            &-content {
+                display: flex;
+                flex-wrap: wrap;
             }
         }
     }
