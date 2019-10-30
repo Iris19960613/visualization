@@ -4,12 +4,12 @@
             <div class="query-select">
                 <button
                     class="query-select-button"
-                    @click="changeCurrent('add')"
+                    @click="changeCurrent('current','add')"
                 >+</button>
                 <div class="query-select-message">当前读取的是 {{ current }}.json</div>
                 <button
                     class="query-select-button"
-                    @click="changeCurrent('del')"
+                    @click="changeCurrent('current','del')"
                 >-</button>
             </div>
             <div class="item">
@@ -30,7 +30,6 @@
         </div>
         <div class="detail">
             <div
-                ref="left"
                 :style="{ 'height': windowHeight + 'px' }"
                 class="detail-fp"
             >
@@ -51,6 +50,11 @@
                         class="item-image"
                     />
                     <div class="item-text">{{ fpItem.caption }}</div>
+                </div>
+                <div class="detail-fp-bottom">
+                    <button @click="changeCurrent('fpCurrent','del')">上一页</button>
+                    <div class="detail-fp-bottom-text">第{{ fpCurrent }}页</div>
+                    <button @click="changeCurrent('fpCurrent','add')">下一页</button>
                 </div>
             </div>
             <div
@@ -75,6 +79,11 @@
                     />
                     <div class="item-text">{{ fnItem.caption }}</div>
                 </div>
+                <div class="detail-fp-bottom">
+                    <button @click="changeCurrent('fnCurrent','del')">上一页</button>
+                    <div class="detail-fp-bottom-text">第{{ fnCurrent }}页</div>
+                    <button @click="changeCurrent('fnCurrent','add')">下一页</button>
+                </div>
             </div>
         </div>
     </div>
@@ -93,7 +102,11 @@ export default {
             // 判断是video还是image
             isVideo: 0,
             // 当前读取json文件
-            current: 1
+            current: 1,
+            // 当前fp页码
+            fpCurrent: 1,
+            // 当前fn页码
+            fnCurrent: 1
         };
     },
     mounted() {
@@ -110,44 +123,50 @@ export default {
                 if (end > 0 && this.query.imageUrl.lastIndexOf('mp4') === end) {
                     this.isVideo = true;
                 }
-                this.fp = res.data.fp;
-                this.fn = res.data.fn;
+
+                // 对当前请求量和总数组长度做对比，从而优化读取到最后一页时点击下一页的提示并禁止继续读取下一页
+                if (this.fpCurrent * 9 < res.data.fp.length + 9) {
+                    this.fp = res.data.fp.slice(this.fpCurrent * 9 - 9, this.fpCurrent * 9);
+                }
+                else {
+                    alert('已经是最后一页啦~');
+                    this.fpCurrent--;
+                }
+
+                if (this.fnCurrent * 9 < res.data.fn.length + 9) {
+                    this.fn = res.data.fn.slice(this.fnCurrent * 9 - 9, this.fnCurrent * 9);
+                }
+                else {
+                    alert('已经是最后一页啦~');
+                    this.fnCurrent--;
+                }
             }).catch(err => {
                 console.log('err', err);
                 this.current--;
-                this.showToast();
+                alert('没有更多的数据了～');
             });
         },
-        changeCurrent(e) {
-            if (e === 'del') {
-                this.current === 1 ? this.showToast() : this.current--; this.getImages();
+        changeCurrent(type, method) {
+            // 把三个函数整合为一个时，需考虑切换json时另外两个需重置回起始值
+            if (type === 'current') {
+                this.fpCurrent = 1;
+                this.fnCurrent = 1;
+            }
+            // 判断同样的操作时处理不一样的type，是切换json、fp还是fn
+            if (method === 'del') {
+                this[type] === 1 ? alert('没有更多的数据了～') : this[type]--; this.getImages();
             }
             else {
-                this.current++;
+                this[type]++;
                 this.getImages();
             }
-        },
-        showToast() {
-            alert('没有更多的数据了～');
         }
-        // 监听元素滚动事件获取高度并调用对应函数
-        // scrollLeft(e) {
-        //     console.log('e', e);
-        //     console.log('left', this.$refs.left);
-        //     console.log(this.$refs.left.scrollToTop);
-        //     // if (left === this.windowHeight) {
-        //     //     console.log('滑倒了底部');
-        //     // }
-        // }
     }
 };
 </script>
 
 <style lang="less" scoped>
 .content {
-    // text-align: center;
-    // height: 100%;
-    // overflow: hidden;
     .query {
         display: flex;
         justify-content: center;
@@ -175,6 +194,14 @@ export default {
             border: solid 1px;
             overflow-y: auto;
             overflow-x: hidden;
+            &-bottom {
+                display: flex;
+                margin: 10px;
+                align-items: center;
+                &-text {
+                    margin: 0 10px;
+                }
+            }
         }
     }
     .item {
