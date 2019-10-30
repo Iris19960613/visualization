@@ -3,7 +3,7 @@
         <div class="query">
             <div class="item">
                 <video
-                    v-if="query.isVideo"
+                    v-if="isVideo"
                     :src="query.imageUrl"
                     mediatype="video"
                     class="item-video"
@@ -27,7 +27,7 @@
                     :key="fpIndex"
                     class="item">
                     <video
-                        v-if="fpItem.isVideo"
+                        v-if="isVideo"
                         :src="fpItem.imageUrl"
                         mediatype="video"
                         class="item-video"
@@ -50,7 +50,7 @@
                     :key="fnIndex"
                     class="item">
                     <video
-                        v-if="fnItem.isVideo"
+                        v-if="isVideo"
                         :src="fnItem.imageUrl"
                         mediatype="video"
                         class="item-video"
@@ -77,11 +77,13 @@ export default {
             fp: [],
             fn: [],
             // 获取不同设备屏幕的浏览器高度从而更好地适配滚动效果
-            windowHeight: 0
+            windowHeight: 0,
+            // 判断是video还是image
+            isVideo: 0
         };
     },
     mounted() {
-        this.windowHeight = window.innerHeight - 290;
+        this.windowHeight = window.innerHeight - 240;
     },
     async created () {
         await this.getImages();
@@ -92,30 +94,10 @@ export default {
                 this.query = res.data.query;
                 let end = this.query.imageUrl.length - 3;
                 if (end > 0 && this.query.imageUrl.lastIndexOf('mp4') === end) {
-                    this.query.isVideo = true;
+                    this.isVideo = true;
                 }
-                this.fp = res.data.fp.map(function(item, index) {
-                    let end = item.imageUrl.length - 3;
-                    if (end > 0 && item.imageUrl.lastIndexOf('mp4') === end) {
-                        item.isVideo = true;
-                        return item;
-                    }
-                    else {
-                        item.isVideo = false;
-                    }
-                    return item;
-                });
-                this.fn = res.data.fn.map(function(item, index) {
-                    let end = item.imageUrl.length - 3;
-                    if (end > 0 && item.imageUrl.lastIndexOf('mp4') === end) {
-                        item.isVideo = true;
-                        return item;
-                    }
-                    else {
-                        item.isVideo = false;
-                    }
-                    return item;
-                });
+                this.fp = res.data.fp;
+                this.fn = res.data.fn;
             });
         }
     }
@@ -129,7 +111,7 @@ export default {
     // overflow: hidden;
     .query {
         text-align: center;
-        padding: 20px 0;
+        // padding: 20px 0;
     }
     .detail {
         display: flex;
@@ -144,12 +126,12 @@ export default {
         }
     }
     .item {
-        height: 228px;
         &-image {
             width: 200px;
             height: 200px;
         }
         &-text {
+            margin-top: -15px;
             font-weight: bold;
         }
         &-video {
